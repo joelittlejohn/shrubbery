@@ -7,7 +7,8 @@
 (defprotocol AProtocol
   (foo [this])
   (bar [this that])
-  (baz [this that the-other-thing]))
+  (baz [this that the-other-thing])
+  (qux [this] [this that]))
 
 (def proto
   (reify AProtocol
@@ -199,7 +200,12 @@
       (is (thrown? RuntimeException (foo subject))))
     (let [subject (stub AProtocol {:foo (throws RuntimeException "foo")})]
       (is (thrown? RuntimeException (foo subject)))
-      (is (thrown-with-msg? RuntimeException #"foo" (foo subject))))))
+      (is (thrown-with-msg? RuntimeException #"foo" (foo subject)))))
+
+  (testing "with multiple arities"
+    (let [subject (stub AProtocol {:qux 1})]
+      (is (= 1 (qux subject)))
+      (is (= 1 (qux subject :that))))))
 
 
 (deftest test-returning
